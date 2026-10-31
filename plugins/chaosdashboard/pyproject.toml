@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "endstone-chaosdashboard"
+version = "0.6.1"
+description = "Local web dashboard for managing an Endstone server"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[project.entry-points.endstone]
+chaosdashboard = "endstone_chaosdashboard:ChaosDashboardPlugin"
+
+[tool.setuptools]
+packages = ["endstone_chaosdashboard"]

@@ -70,6 +70,11 @@ class RankManager:
         prefix = self._prefix(player.name)
         player.name_tag = f"{prefix} {player.name}" if prefix else player.name
 
+    def assign(self, name: str, group: str) -> None:
+        self.players[name.lower()] = group
+        self.store.save()
+        self._apply_all()
+
     def _apply_all(self) -> None:
         for player in self.plugin.server.online_players:
             self.apply(player)

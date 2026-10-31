@@ -229,10 +229,13 @@ class TextManager:
         text_id = self._pick(player, args)
         if text_id is None:
             return False
+        self.remove(text_id)
+        player.send_message(f"{ColorFormat.GREEN}Text {text_id} entfernt.")
+        return True
+
+    def remove(self, text_id: str) -> None:
         for viewer in self._viewers(text_id):
             self._hide(viewer, text_id)
             self.seen[viewer.name].discard(text_id)
         del self.texts[text_id]
         self.store.save()
-        player.send_message(f"{ColorFormat.GREEN}Text {text_id} entfernt.")
-        return True

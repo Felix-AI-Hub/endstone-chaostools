@@ -1,12 +1,13 @@
 # endstone-chaostools
 
-Three independent [Endstone](https://github.com/EndstoneMC/endstone) plugins for Minecraft Bedrock servers. Install only the ones you need.
+Four independent [Endstone](https://github.com/EndstoneMC/endstone) plugins for Minecraft Bedrock servers. Install only the ones you need.
 
 | Plugin | What it adds |
 |---|---|
 | [ChaosTexts](#chaostexts) | Floating texts that you move with your crosshair |
 | [ChaosPortals](#chaosportals) | Portals and signs that teleport players or send them to another server |
 | [ChaosRanks](#chaosranks) | Permission groups with inheritance and name prefixes |
+| [ChaosDashboard](#chaosdashboard) | Local web page for managing the server |
 
 Tested with Bedrock Dedicated Server 1.26.60 and Endstone 0.11.15.
 
@@ -64,6 +65,14 @@ Requires `chaosportals.command`. Inventories are not carried across servers.
 Requires `chaosranks.command`. Every plugin's permission is for operators by default. All permissions on your server are also written to `plugins/chaosranks/known-permissions.txt`.
 
 Vanilla commands use names like `minecraft.command.kick`. With `allow-cheats=false`, the game can still refuse cheat commands for a player who has the permission.
+
+## ChaosDashboard
+
+A web page that shows players, floating texts, portals and ranks, and lets you kick players, change ranks and run console commands. It works with whichever of the other plugins you have installed.
+
+The first start creates `plugins/chaosdashboard/settings.json` with the port (8099 by default) and a random password in `token`. The server must be able to receive that port, so on a hosted panel add it as an extra allocation.
+
+Anyone with the password can run console commands, and the page uses plain HTTP. Keep it on your local network and don't forward the port.
 
 ## Build
 
