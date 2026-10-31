@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "endstone-chaosranks"
+version = "0.5.0"
+description = "Permission groups with inheritance and name prefixes for Endstone"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[project.entry-points.endstone]
+chaosranks = "endstone_chaosranks:ChaosRanksPlugin"
+
+[tool.setuptools]
+packages = ["endstone_chaosranks"]

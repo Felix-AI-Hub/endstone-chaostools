@@ -7,8 +7,8 @@ import uuid
 from endstone import ColorFormat, Player
 from endstone.plugin import Plugin
 
-from endstone_chaostools import protocol
-from endstone_chaostools.store import JsonStore
+from endstone_chaostexts import protocol
+from endstone_chaostexts.store import JsonStore
 
 EYE_HEIGHT = 1.62
 SPAWN_HEIGHT = 2.5

@@ -1,14 +1,20 @@
 # endstone-chaostools
 
-An [Endstone](https://github.com/EndstoneMC/endstone) plugin for Minecraft Bedrock servers that adds floating texts you move with your crosshair, plus portals and signs that teleport players or send them to another server.
+Three independent [Endstone](https://github.com/EndstoneMC/endstone) plugins for Minecraft Bedrock servers. Install only the ones you need.
+
+| Plugin | What it adds |
+|---|---|
+| [ChaosTexts](#chaostexts) | Floating texts that you move with your crosshair |
+| [ChaosPortals](#chaosportals) | Portals and signs that teleport players or send them to another server |
+| [ChaosRanks](#chaosranks) | Permission groups with inheritance and name prefixes |
 
 Tested with Bedrock Dedicated Server 1.26.60 and Endstone 0.11.15.
 
 ## Install
 
-Download the wheel from the [releases page](https://github.com/Felix-AI-Hub/endstone-chaostools/releases), put it in your server's `plugins/` folder and restart the server.
+Download the wheels you want from the [releases page](https://github.com/Felix-AI-Hub/endstone-chaostools/releases), put them in your server's `plugins/` folder and restart the server.
 
-## Floating texts
+## ChaosTexts
 
 | Command | What it does |
 |---|---|
@@ -21,9 +27,11 @@ Download the wheel from the [releases page](https://github.com/Felix-AI-Hub/ends
 | `/ft remove [id]` | Removes the text you look at, or the one with this id. |
 | `/ft list` | Lists all texts with their ids. |
 
-Texts exist only on the clients. The server sends a display packet and never simulates an entity for them.
+Requires `chaostexts.command`. Texts exist only on the clients: the server sends a display packet and never simulates an entity for them.
 
-## Portals and signs
+The packets are written by hand for protocol 2225, so a new Minecraft version can break this plugin. Since 26.60, each metadata entry writes its value type twice, and older versions will not accept that format.
+
+## ChaosPortals
 
 | Command | What it does |
 |---|---|
@@ -34,20 +42,38 @@ Texts exist only on the clients. The server sends a display packet and never sim
 | `/portal list` | Lists all portals. |
 | `/portal remove <name>` | Removes a portal. |
 
-A Bedrock server loads a single world, so a separate world means a separate server that you link with `/portal server`. Inventories are not carried across.
+Requires `chaosportals.command`. Inventories are not carried across servers.
 
-All commands require the `chaostools.command` permission, which operators have by default.
+## ChaosRanks
 
-## Compatibility
+| Command | What it does |
+|---|---|
+| `/rank list` | Lists all ranks. |
+| `/rank info [player]` | Shows a player's rank and permissions. |
+| `/rank perms [filter]` | Lists the permissions that exist on this server. |
+| `/rank create <rank>` | Creates a rank. |
+| `/rank delete <rank>` | Deletes a rank. |
+| `/rank default <rank>` | Sets the rank for players without one. |
+| `/rank set <player> <rank>` | Gives a player a rank. |
+| `/rank unset <player>` | Returns a player to the default rank. |
+| `/rank perm <rank> <permission> [true\|false]` | Grants or denies a permission. |
+| `/rank unperm <rank> <permission>` | Removes a permission entry. |
+| `/rank inherit <rank> <parent>` | Makes a rank inherit from another one. |
+| `/rank prefix <rank> [text]` | Sets the prefix shown in chat and above the name. |
 
-The packets are written by hand for protocol 2225, so a new Minecraft version can break floating texts. Since 26.60, each metadata entry writes its value type twice, and older versions will not accept that format.
+Requires `chaosranks.command`. Every plugin's permission is for operators by default. All permissions on your server are also written to `plugins/chaosranks/known-permissions.txt`.
+
+Vanilla commands use names like `minecraft.command.kick`. With `allow-cheats=false`, the game can still refuse cheat commands for a player who has the permission.
 
 ## Build
 
+Python 3.11 or later is enough:
+
 ```sh
-pip install build
-python -m build --wheel
+python build.py
 ```
+
+The wheels end up in `dist/`.
 
 ## License
 

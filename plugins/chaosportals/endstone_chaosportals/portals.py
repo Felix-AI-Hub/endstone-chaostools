@@ -7,7 +7,7 @@ from endstone.event import PlayerInteractEvent
 from endstone.level import Location
 from endstone.plugin import Plugin
 
-from endstone_chaostools.store import JsonStore
+from endstone_chaosportals.store import JsonStore
 
 COOLDOWN_SECONDS = 3.0
 DEFAULT_RADIUS = 1.5
