@@ -14,6 +14,9 @@ EYE_HEIGHT = 1.62
 SPAWN_HEIGHT = 2.5
 REDRAW_DISTANCE = 0.15
 JOIN_DELAY_SECONDS = 5.0
+RESEND_DELAY_SECONDS = 15.0  # clients drop actors in chunks they have not loaded yet
+SHOW_DISTANCE = 48.0
+HIDE_DISTANCE = 64.0
 PICK_ANGLE = math.radians(10)
 MIN_DISTANCE, MAX_DISTANCE = 1.0, 64.0
 
@@ -37,6 +40,7 @@ class TextManager:
         self.seen: dict[str, set[str]] = {}  # player name -> text ids on that client
         self.seen_dim: dict[str, str] = {}
         self.joined: dict[str, float] = {}
+        self.resent: set[str] = set()
         self.moving: dict[str, dict] = {}  # player name -> {"id", "dist", "drawn"}
 
     def _runtime_id(self, text_id: str) -> int:
@@ -93,10 +97,22 @@ class TextManager:
                     self._hide(player, text_id)
                 seen.clear()
                 self.seen_dim[name] = dimension
+            loc = player.location
             for text_id, data in self.texts.items():
-                if data["dim"] == dimension and text_id not in seen:
+                if data["dim"] != dimension:
+                    continue
+                distance = math.dist((loc.x, loc.y, loc.z), (data["x"], data["y"], data["z"]))
+                if text_id in seen and distance > HIDE_DISTANCE:
+                    self._hide(player, text_id)
+                    seen.discard(text_id)
+                elif text_id not in seen and distance <= SHOW_DISTANCE:
                     self._show(player, text_id)
                     seen.add(text_id)
+            if name not in self.resent and now - self.joined[name] >= RESEND_DELAY_SECONDS:
+                self.resent.add(name)
+                for text_id in seen & set(self.texts):
+                    self._hide(player, text_id)
+                    self._show(player, text_id)
 
     def tick_moving(self) -> None:
         for name, state in list(self.moving.items()):
@@ -129,6 +145,7 @@ class TextManager:
         self.seen.pop(name, None)
         self.seen_dim.pop(name, None)
         self.joined.pop(name, None)
+        self.resent.discard(name)
         self.moving.pop(name, None)
 
     def command(self, player: Player, args: list[str]) -> bool:
