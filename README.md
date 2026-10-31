@@ -42,8 +42,10 @@ The packets are written by hand for protocol 2225, so a new Minecraft version ca
 | `/portal sign <name>` | Links the next block you right-click, such as a sign. |
 | `/portal list` | Lists all portals. |
 | `/portal remove <name>` | Removes a portal. |
+| `/portal sethub [host] [port]` | Sets the `/hub` destination: another server, or your position without a host. |
+| `/hub` | Takes you to the hub. Every player can use it. |
 
-Requires `chaosportals.command`. Inventories are not carried across servers.
+Managing portals requires `chaosportals.command`, and `/hub` requires `chaosportals.hub`. Inventories are not carried across servers.
 
 ## ChaosRanks
 

@@ -19,17 +19,26 @@ class ChaosPortalsPlugin(Plugin):
                 "/portal (sign|target|remove)<action: PortalNameAction> <name: str>",
                 "/portal (server)<action: PortalServerAction> <name: str> <host: str> [port: int]",
                 "/portal (list)<action: PortalListAction>",
+                "/portal (sethub)<action: PortalHubAction> [host: str] [port: int]",
             ],
             "permissions": ["chaosportals.command"],
+        },
+        "hub": {
+            "description": "Go to the hub",
+            "usages": ["/hub"],
+            "permissions": ["chaosportals.hub"],
         },
     }
     permissions = {
         "chaosportals.command": {"description": "Manage portals and signs", "default": "op"},
+        "chaosportals.hub": {"description": "Use /hub", "default": True},
     }
 
     def on_enable(self) -> None:
         self.data_folder.mkdir(parents=True, exist_ok=True)
-        self.manager = PortalManager(self, JsonStore(self.data_folder / "portals.json"))
+        self.manager = PortalManager(
+            self, JsonStore(self.data_folder / "portals.json"), JsonStore(self.data_folder / "hub.json")
+        )
         self.server.scheduler.run_task(self, self.manager.tick, delay=5, period=5)
         self.register_events(self)
 
@@ -40,6 +49,8 @@ class ChaosPortalsPlugin(Plugin):
         if not isinstance(sender, Player):
             sender.send_error_message("Nur Spieler können diesen Befehl nutzen.")
             return False
+        if command.name == "hub":
+            return self.manager.hub(sender)
         return self.manager.command(sender, args)
 
     @event_handler

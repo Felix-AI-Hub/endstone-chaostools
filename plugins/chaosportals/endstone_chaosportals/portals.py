@@ -16,9 +16,10 @@ REGION_HEIGHT = 3
 
 
 class PortalManager:
-    def __init__(self, plugin: Plugin, store: JsonStore) -> None:
+    def __init__(self, plugin: Plugin, store: JsonStore, hub_store: JsonStore) -> None:
         self.plugin = plugin
         self.store = store
+        self.hub_store = hub_store
         self.portals = store.data
         self.arming: dict[str, str] = {}  # player name -> portal waiting for a block click
         self.cooldown: dict[str, float] = {}
@@ -32,13 +33,44 @@ class PortalManager:
         target = self.portals[name].get("target")
         if target is None:
             player.send_error_message(f"Portal {name} hat noch kein Ziel.")
-        elif target["type"] == "server":
-            player.transfer(target["host"], target["port"])
         else:
-            dimension = self.plugin.server.level.get_dimension(target["dim"])
-            player.teleport(
-                Location(dimension, target["x"], target["y"], target["z"], target["pitch"], target["yaw"])
-            )
+            self._travel(player, target)
+
+    def _travel(self, player: Player, target: dict) -> None:
+        if target["type"] == "server":
+            player.transfer(target["host"], target["port"])
+            return
+        dimension = self.plugin.server.level.get_dimension(target["dim"])
+        player.teleport(
+            Location(dimension, target["x"], target["y"], target["z"], target["pitch"], target["yaw"])
+        )
+
+    def hub(self, player: Player) -> bool:
+        target = self.hub_store.data.get("target")
+        if target is None:
+            player.send_error_message("Auf diesem Server ist noch kein Hub gesetzt.")
+            return False
+        self._travel(player, target)
+        return True
+
+    @staticmethod
+    def _here(player: Player) -> dict:
+        loc = player.location
+        return {
+            "type": "tp", "dim": player.dimension.name, "x": loc.x, "y": loc.y, "z": loc.z,
+            "pitch": loc.pitch, "yaw": loc.yaw,
+        }
+
+    def _set_hub(self, player: Player, args: list[str]) -> bool:
+        if args:
+            port = int(args[1]) if len(args) > 1 else DEFAULT_PORT
+            self.hub_store.data["target"] = {"type": "server", "host": args[0], "port": port}
+            player.send_message(f"{ColorFormat.GREEN}/hub führt jetzt zu {args[0]}:{port}.")
+        else:
+            self.hub_store.data["target"] = self._here(player)
+            player.send_message(f"{ColorFormat.GREEN}/hub führt jetzt zu deinem Standort.")
+        self.hub_store.save()
+        return True
 
     def _portal_at(self, player: Player) -> str | None:
         loc = player.location
@@ -87,6 +119,8 @@ class PortalManager:
         action = args[0]
         if action == "list":
             return self._list(player)
+        if action == "sethub":
+            return self._set_hub(player, args[1:])
         name = args[1]
         if action == "create":
             self._create(player, name, float(args[2]) if len(args) > 2 else DEFAULT_RADIUS)
@@ -128,9 +162,5 @@ class PortalManager:
         player.send_message(f"{ColorFormat.GREEN}Portal {name} steht hier. Jetzt /portal target oder server.")
 
     def _set_target(self, player: Player, name: str) -> None:
-        loc = player.location
-        self.portals[name]["target"] = {
-            "type": "tp", "dim": player.dimension.name, "x": loc.x, "y": loc.y, "z": loc.z,
-            "pitch": loc.pitch, "yaw": loc.yaw,
-        }
+        self.portals[name]["target"] = self._here(player)
         player.send_message(f"{ColorFormat.GREEN}Ziel von {name} ist jetzt dein Standort.")
